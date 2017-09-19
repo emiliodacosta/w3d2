@@ -14,6 +14,12 @@ end
 class Users
   attr_accessor :name
   attr_reader :id
+
+  def self.all
+    data = QuestionsDatabase.instance.execute("SELECT * FROM users")
+    data.map { |datum| Users.new(datum) }
+  end
+
   def self.find_by_id(id)
     person = QuestionsDatabase.instance.execute(<<-SQL, id)
       SELECT
@@ -58,6 +64,37 @@ class Users
   def liked_questions
     QuestionLikes.liked_questions_for_user_id(@id)
   end
+
+  def average_karma
+    all_my_questions = Questions.find_by_author_id(@id)
+    likes_on_each_question = all_my_questions.map do |each_question|
+      QuestionLikes.num_likes_for_question_id(each_question.id)
+    end
+
+    likes_on_each_question.reduce(&:+).to_f / likes_on_each_question.length
+  end
+
+  def save
+    if @id
+      QuestionsDatabase.instance.execute(<<-SQL, @name, @id)
+        UPDATE
+          users
+        SET
+          name = ?
+        WHERE
+          id = ?
+      SQL
+    else
+      QuestionsDatabase.instance.execute(<<-SQL, @name)
+        INSERT INTO
+          users (name)
+        VALUES
+          (?)
+      SQL
+      @id = QuestionsDatabase.instance.last_insert_row_id
+    end
+  end
+
 end
 
 class Questions
