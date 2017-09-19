@@ -89,9 +89,14 @@ INSERT INTO
   question_follows (question_id, author_id)
 VALUES
   (2, 1),
+  (2, 2),
   (3, 2);
 
 INSERT INTO
   question_likes (question_id, author_id)
 VALUES
-  (2, 1);
+  (2, 1),
+  (2, 2),
+  (1, 3),
+  (2, 3),
+  (3, 3);

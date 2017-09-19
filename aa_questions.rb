@@ -51,6 +51,10 @@ class Users
     Replies.find_by_user_id(@id)
   end
 
+  def followed_questions
+    QuestionFollows.followed_questions_for_user_id(@id)
+  end
+
 end
 
 class Questions
@@ -83,8 +87,11 @@ class Questions
       WHERE
         author_id = ?
     SQL
-
     questions.map { |question| Questions.new(question) }
+  end
+
+  def self.most_followed(n)
+    QuestionFollow.most_followed_questions(n)
   end
 
   def initialize(options)
@@ -100,6 +107,10 @@ class Questions
 
   def replies
     Replies.find_by_question_id(@id)
+  end
+
+  def followers
+    QuestionFollows.followers_for_question_id(@id)
   end
 end
 
@@ -193,6 +204,18 @@ class QuestionFollows
         id = ?
     SQL
     QuestionFollows.new(follows.first)
+  end
+
+  def self.most_followed_questions(n)
+    mfquestions = QuestionsDatabase.instance.execute(<<-SQL, n)
+    SELECT *
+    FROM question_follows
+    JOIN questions ON question_follows.question_id = questions.id
+    GROUP BY question_id
+    ORDER BY count(question_id) DESC
+    LIMIT ?
+    SQL
+    mfquestions.map { |question| Questions.new(question) }
   end
 
   def self.followers_for_question_id(question_id)
