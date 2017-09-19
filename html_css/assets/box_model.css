@@ -68,7 +68,6 @@ input[type="radio"]:checked {
   background-position: 30px 30px;
 }
 
-
 input:last-child {
     background: gold;
 }
@@ -76,7 +75,6 @@ input:last-child {
 input:last-child:hover {
     -webkit-filter: brightness(90%);
 }
-
 
 ol li:nth-of-type(2n) {
   background-color: whitesmoke;
